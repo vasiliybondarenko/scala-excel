@@ -50,6 +50,7 @@ object ExcelReporter {
     return new Reporter {
       override def run(reportInfo: ReportInfo, reportData: ReportData): ReportFile = {
         // TDB write the actual code here
+        SimpleReporter.run(reportInfo, reportData)
       }
     }
   }
