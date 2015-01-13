@@ -10,7 +10,11 @@ object ExcelReporter {
    * Internal data type
    */
   object DataType extends Enumeration {
-    val Number, String, Date = Value
+    val
+      Number,
+      String,
+      Date // YYYY/MM/DD
+    = Value
   }
   
   /**
@@ -25,15 +29,16 @@ object ExcelReporter {
   // meta column list
   type ColInfoList = List[ColInfo]
 
-
   // list of strings
   type RowGroupList = List[String]
+
+  type ShowColList = List[String]
 
   // 2 dims report data
   type ReportData = List[List[String]]
 
   // report info
-  case class ReportInfo( colList: ColInfoList, rowGroup:RowGroupList = Nil )
+  case class ReportInfo( colInfo: ColInfoList, colShowList: ShowColList, rowGroup:RowGroupList = Nil )
 
   type ReportFile = Any // TDB provide the actual data type
 
