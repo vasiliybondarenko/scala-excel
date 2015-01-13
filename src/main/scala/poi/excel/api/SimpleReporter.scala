@@ -1,10 +1,13 @@
 package poi.excel.api
 
 import java.io.FileOutputStream
+import java.util
 
 import org.apache.poi.xssf.usermodel.{XSSFCell, XSSFWorkbook}
 import poi.excel._
-import poi.excel.api.ExcelReporter.{ReportFile, ReportData, ReportInfo, Reporter}
+import poi.excel.api.ExcelReporter._
+
+
 
 object SimpleReporter extends Reporter{
 
@@ -20,16 +23,22 @@ object SimpleReporter extends Reporter{
     val sheet = wb.createSheet(sheetName)
     val headerRow = sheet.createRow(0)
     val columnsToShow = reportInfo.colShowList.toSet
-    val colMetaData = reportInfo.colInfo.toArray
+    val colMetaData = getFilteredColumns(reportInfo).toArray
 
     sheet.setDefaultColumnWidth(columnWidth)
 
+    val columnsToShowIndexes = new util.HashSet[Int]()
+    var columnIndex = 0
+    for(item <- reportInfo.colInfo) {
+      if(columnsToShow.contains(item.field)) columnsToShowIndexes.add(columnIndex)
+      columnIndex = columnIndex + 1
+    }
+
     //header
-    var columnNumber = 1
-    for(item <- reportInfo.colInfo if columnsToShow.contains(item.field)) {
+    var columnNumber = 0
+    for(item <- getFilteredColumns(reportInfo)) {
       val cell = headerRow.createCell(columnNumber)
       cell.setCellValue(item.title)
-
       columnNumber = columnNumber + 1
     }
 
@@ -40,7 +49,8 @@ object SimpleReporter extends Reporter{
       row.createCell(0).setCellValue(rowItem.head)
 
       var columnNumber = 0
-      for(cellValue <- rowItem){
+      val cells = getVisibleCells(rowItem, reportInfo)
+      for(cellValue <- cells){
         val cell:XSSFCell = row.createCell(columnNumber)
         val value = cellValue
 
@@ -62,5 +72,32 @@ object SimpleReporter extends Reporter{
     wb.write(resultFile)
     resultFile.close
 
+  }
+
+  def getFilteredColumns(reportInfo: ReportInfo): List[ColInfo] = {
+    val columnsToShow = reportInfo.colShowList.toSet
+    var list:List[ColInfo] = Nil
+    for(item <- reportInfo.colInfo) {
+      if(columnsToShow.contains(item.field)) list = item :: list
+    }
+    list.reverse
+  }
+
+  //TODO: simplify
+  def getVisibleCells(row: List[String], reportInfo: ReportInfo): List[String] = {
+    val columnsToShow = reportInfo.colShowList.toSet
+    val columnsToShowIndexes = new util.HashSet[Int]()
+    var columnIndex = 0
+    for(item <- reportInfo.colInfo) {
+      if(columnsToShow.contains(item.field)) columnsToShowIndexes.add(columnIndex)
+      columnIndex = columnIndex + 1
+    }
+    var filteredCells:List[String] = Nil
+    columnIndex = 0
+    for(cell <- row){
+      if (columnsToShowIndexes.contains(columnIndex)) filteredCells =  cell :: filteredCells
+      columnIndex = columnIndex + 1
+    }
+    filteredCells .reverse
   }
 }
