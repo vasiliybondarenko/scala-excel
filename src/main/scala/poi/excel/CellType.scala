@@ -63,10 +63,16 @@ case class TextConverter(dataType:ExcelReporter.DataType.Value) extends CellData
   override def assignValue(value: String, cell: XSSFCell): Unit = cell.setCellValue(value)
 }
 
+case class MoneyConverter(dataType:ExcelReporter.DataType.Value) extends CellDataConverter{
+  override def getDataFormat: String = "$#,##0.00"
+  override def assignValue(value: String, cell: XSSFCell): Unit = cell.setCellValue(value.toDouble)
+}
+
 object CellDataConverter{
   def apply(dataType:ExcelReporter.DataType.Value):CellDataConverter = dataType match {
     case ExcelReporter.DataType.Number => NumberConverter(dataType)
     case ExcelReporter.DataType.Date => DateConverter(dataType)
+    case ExcelReporter.DataType.Money => MoneyConverter(dataType)
     case ExcelReporter.DataType.String => TextConverter(dataType)
   }
 }

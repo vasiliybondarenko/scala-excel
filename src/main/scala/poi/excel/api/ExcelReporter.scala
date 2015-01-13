@@ -12,6 +12,7 @@ object ExcelReporter {
   object DataType extends Enumeration {
     val
       Number,
+      Money,
       String,
       Date // YYYY/MM/DD
     = Value
