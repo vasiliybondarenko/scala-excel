@@ -16,6 +16,8 @@ object ExcelReporterSamples {
   private val revenue: ColInfo = ColInfo("revenue", DataType.Number, "Revenue")
   private val reportDate: ColInfo = ColInfo("reportDate", DataType.Date, "Report Date")
 
+  val colInfo = List(acTypeCol, saCol, contractMins, usedMins, revenue, reportDate)
+
   val data = List(
     List("AT1", "SA1", "2000", "1000", "1000000", "2015/01/15"),
     List("AT2", "SA1", "2500", "1200", "2000000", "2015/01/14"),
@@ -26,13 +28,18 @@ object ExcelReporterSamples {
   )
 
   def simpleReport(): Unit = {
-    val repInfo = ReportInfo(List(acTypeCol, saCol, contractMins, revenue, reportDate))
+    //
+    val repInfo = ReportInfo(colInfo,
+      List(acTypeCol.field, saCol.field, contractMins.field, revenue.field, reportDate.field)
+    )
     makeReporter().run(repInfo, data)
   }
 
   def groupedReport(): Unit = {
     // group same report by aircraft type id
-    val repInfo = ReportInfo(List(acTypeCol, saCol, revenue, reportDate, contractMins), List(acTypeCol.field))
+    val repInfo = ReportInfo(colInfo,
+      List(acTypeCol.field, saCol.field, revenue.field, reportDate.field, contractMins.field), List(saCol.field)
+    )
     makeReporter().run(repInfo, data)
   }
 
