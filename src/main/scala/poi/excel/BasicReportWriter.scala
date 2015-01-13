@@ -1,11 +1,10 @@
 package poi.excel
 
-import java.awt.Color
 import java.io.FileOutputStream
 import java.time.Month
 
 import org.apache.poi.ss.util.CellRangeAddress
-import org.apache.poi.xssf.usermodel.{XSSFColor, XSSFWorkbook}
+import org.apache.poi.xssf.usermodel.XSSFWorkbook
 
 /**
  * Created with IntelliJ IDEA.
@@ -16,23 +15,25 @@ import org.apache.poi.xssf.usermodel.{XSSFColor, XSSFWorkbook}
  */
 object BasicReportWriter extends App{
 
-  val path = "/Users/shredinger/Downloads/avail-report.xls"
+  val path = "/Users/shredinger/Downloads/avail-report.xlsx"
 
   val month = Month.FEBRUARY
   val data = Map(
     (1, "OE-GVF") -> Array("s",	 "5.50",	 "3.50",	 "9.75",	 "CR",	 "CR",	 "6.00",	 "1.17",	 "CR"),
-    (2, "OE-GVG") -> Array("4.25",	 "UMX",	 "UMX",	 "2.33",	 "4.33",	 "CR",	 "CR",	 "2.50",	 "AOG")
+    (2, "OE-GVG") -> Array("4.25",	 "UMX",	 "UMX",	 "2.33",	 "4.33",	 "CR",	 "CR",	 "2.50",	 "AOG"),
+    (3, "XX-XXX") -> Array("2015/01/12",	 "100.00",	 "UMX",	 "2.33",	 "4.33",	 "CR",	 "CR",	 "2.50",	 "AOG")
   )
 
-  def getStyle(value:String, wb:XSSFWorkbook) = {
-    val style = wb.createCellStyle
-    style.setFillBackgroundColor(new XSSFColor(Color.orange))
+  def matches(s:String, pattern:String):Boolean = s.matches(pattern)
 
-    val format = wb.createDataFormat()
-    style.setDataFormat(format.getFormat("#,##0.0000"))
-
-    style
+  def getCellType(value:String) =  {
+    if (matches(value, CellDataTypes.CURRENCY))  Currency(value) else
+    if (matches(value, CellDataTypes.DATE))  DateCellType(value) else
+    Text(value)
   }
+
+
+
 
   def sheetName = "Avail report - All prod"
 
@@ -57,9 +58,17 @@ object BasicReportWriter extends App{
       for(idx <- 1 to data(key).size) {
         val cell = row.createCell(idx)
         val value = data(key)(idx - 1)
-        cell.setCellValue(value)
-        cell.setCellStyle(getStyle(value, wb))
+        val cellType = getCellType(value)
 
+        val style = wb.createCellStyle()
+        val format = wb.createDataFormat()
+        style.setDataFormat(format.getFormat(cellType.formatString))
+        cell.setCellStyle(style)
+        cellType match {
+          case _: Currency => cell.setCellValue(cellType.asInstanceOf[Currency].getValue)
+          case _: DateCellType => cell.setCellValue(cellType.asInstanceOf[DateCellType].getValue)
+          case _: Text => cell.setCellValue(cellType.asInstanceOf[Text].getValue)
+        }
 
       }
     }
