@@ -7,15 +7,23 @@ object ExcelReporterSamples {
 
   import poi.excel.api.ExcelReporter._
 
-  private val acTypeCol: DataField = DataField("aircraftType", DataType.String, "AC Type")
-  private val saCol: DataField = DataField("serviceArea", DataType.String, "Service Area")
-  private val contractMins: DataField = DataField("minutesContracted", DataType.Number, "Contract Minutes")
-  private val usedMins: DataField = DataField("minutesUsed", DataType.Number, "Used Minutes")
-  private val revenue: DataField = DataField("revenue", DataType.Number, "Revenue", Option("0.00"))
-  private val reportDate: DataField = DataField("reportDate", DataType.Date, "Report Date")
-  private val reportMoney: DataField = DataField("reportMoney", DataType.Money, "$")
+  private val acTypeCol: DataField = DataField("aircraftType", DataType.String)
+  private val saCol: DataField = DataField("serviceArea", DataType.String)
+  private val contractMins: DataField = DataField("minutesContracted", DataType.Number)
+  private val usedMins: DataField = DataField("minutesUsed", DataType.Number)
+  private val revenue: DataField = DataField("revenue", DataType.Number)
+  private val reportDate: DataField = DataField("reportDate", DataType.Date)
+  private val reportMoney: DataField = DataField("reportMoney", DataType.Money)
+  
+  private val acTypeRepField = ReportField("aircraftType", "AC Type")
+  private val saRF = ReportField("serviceArea", "Service Area")
+  private val contractMinsRF = ReportField("minutesContracted", "Contract Minutes")
+  private val usedMinsRF = ReportField("minutesUsed", "Used Minutes")
+  private val revenueRF = ReportField("revenue", "Revenue", Option("0.00"))
+  private val reportDateRF = ReportField("reportDate", "Report Date")
+  private val reportMoneyRF = ReportField("reportMoney", "$")
 
-  val colInfo = List(acTypeCol, saCol, contractMins, usedMins, revenue, reportDate, reportMoney)
+  val dataFields = List(acTypeCol, saCol, contractMins, usedMins, revenue, reportDate, reportMoney)
 
   val data = List(
     List("AT1", "SA1", "2000", "1000", "1000000", "2015/01/15", "2000"),
@@ -28,17 +36,17 @@ object ExcelReporterSamples {
 
   def simpleReport(): Unit = {
     //
-    val repInfo = ReportInfo(colInfo,
-      List(acTypeCol.field, saCol.field, contractMins.field, revenue.field, reportDate.field, reportMoney.field)
+    val repInfo = ReportInfo(dataFields,
+      List(acTypeRepField, saRF, contractMinsRF, revenueRF, reportDateRF, reportMoneyRF)
     )
     makeReporter().run(repInfo, data)
   }
 
   def groupedReport(): Unit = {
     // group same report by aircraft type id
-    val repInfo = ReportInfo(colInfo,
-      List(acTypeCol.field, saCol.field, revenue.field, reportDate.field, contractMins.field),
-      List(acTypeCol.field)
+    val repInfo = ReportInfo(dataFields,
+      List(acTypeRepField, saRF, revenueRF, reportDateRF, contractMinsRF),
+      List(acTypeRepField)
     )
     makeReporter().run(repInfo, data)
   }

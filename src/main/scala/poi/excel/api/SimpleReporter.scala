@@ -21,13 +21,14 @@ object SimpleReporter extends Reporter{
     val wb = new XSSFWorkbook()
     val sheet = wb.createSheet(sheetName)
     val headerRow = sheet.createRow(0)
-    val colMetaData = getFilteredColumns(reportInfo).toArray
+    val dataFields = getFilteredDataFields(reportInfo).toArray
+    val reportFields = getFilteredReportFields(reportInfo).toArray
 
     sheet.setDefaultColumnWidth(columnWidth)
 
     //header
     var columnNumber = 0
-    for(item <- getFilteredColumns(reportInfo)) {
+    for(item <- getFilteredReportFields(reportInfo)) {
       val cell = headerRow.createCell(columnNumber)
       cell.setCellValue(item.title)
       columnNumber = columnNumber + 1
@@ -45,8 +46,8 @@ object SimpleReporter extends Reporter{
         val cell:XSSFCell = row.createCell(columnNumber)
         val value = cellValue
 
-        val dataConverter = CellDataConverter(colMetaData(columnNumber).dataType)
-        val columnFormatString = colMetaData(columnNumber).format
+        val dataConverter = CellDataConverter(dataFields(columnNumber).dataType)
+        val columnFormatString = reportFields(columnNumber).format
 
         val style = wb.createCellStyle()
         val format = wb.createDataFormat()
@@ -75,18 +76,22 @@ object SimpleReporter extends Reporter{
 
   }
 
-  def prepareData(reportInfo: ReportInfo, reportData: ReportData):ReportData = reportInfo.rowGroup match {
+  def prepareData(reportInfo: ReportInfo, reportData: DataArray):DataArray = reportInfo.rowGroup match {
     case List(_) => DataSorter.sort(reportInfo, reportData)
     case Nil => reportData
   }
 
-  def getFilteredColumns(reportInfo: ReportInfo): List[DataField] = {
-    val columnsToShow = reportInfo.reportFields.toSet
-    reportInfo.dataFields.filter(c => columnsToShow.contains(c.field))
+  def getFilteredReportFields(reportInfo: ReportInfo): List[ReportField] = {
+    reportInfo.reportFields
+  }
+
+  def getFilteredDataFields(reportInfo: ReportInfo): List[DataField] = {
+        val columnsToShow = reportInfo.reportFields.map(f => f.field).toSet
+        reportInfo.dataFields.filter(c => columnsToShow.contains(c.field))  
   }
 
   def getVisibleCells(row: List[String], reportInfo: ReportInfo): List[String] = {
-    val columnsToShow = reportInfo.reportFields.toSet
+    val columnsToShow = reportInfo.reportFields.map(rf => rf.field).toSet
     (reportInfo.dataFields zip row)
       .filter(pair => columnsToShow.contains(pair._1.field))
       .map(pair => pair._2)

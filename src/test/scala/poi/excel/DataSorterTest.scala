@@ -1,20 +1,25 @@
 package poi.excel
 
 import org.scalatest.{FlatSpec, Matchers}
-import poi.excel.api.ExcelReporter.{ReportInfo, DataType, ColInfo}
+import poi.excel.api.ExcelReporter._
 
 /**
- * Created with IntelliJ IDEA.
- * Author: shredinger
- * Date: 1/14/15
- * Time: 1:18 PM 
- * Project: scala-excel
- */
+* Created with IntelliJ IDEA.
+* Author: shredinger
+* Date: 1/14/15
+* Time: 1:18 PM
+* Project: scala-excel
+*/
 class DataSorterTest extends FlatSpec with Matchers {
 
-  private val acTypeCol: ColInfo = ColInfo("aircraftType", DataType.String, "AC Type")
-  private val saCol: ColInfo = ColInfo("serviceArea", DataType.String, "Service Area")
-  private val usedMins: ColInfo = ColInfo("minutesUsed", DataType.Number, "Used Minutes")
+  private val acType = DataField("aircraftType", DataType.String)
+  private val sa = DataField("serviceArea", DataType.String)
+  private val usedMins = DataField("minutesUsed", DataType.Number)
+
+
+  private val acTypeRF = ReportField("aircraftType", "AC Type")
+  private val saRF = ReportField("serviceArea", "Service Area")
+  private val usedMinsRF = ReportField("minutesUsed", "Used Minutes")
 
   val data = List(
     List("AT1", "SA1"),
@@ -35,7 +40,7 @@ class DataSorterTest extends FlatSpec with Matchers {
   )
 
   it should "sort data by group column" in {
-    DataSorter.sort(ReportInfo(List(acTypeCol, saCol), List(saCol.field, saCol.field), List(acTypeCol.field)), data) should be(
+    DataSorter.sort(ReportInfo(List(acType, sa), List(acTypeRF, saRF), List(acTypeRF)), data) should be(
       List(
         List("AT1", "SA1"),
         List("AT1", "SA2"),
@@ -50,9 +55,9 @@ class DataSorterTest extends FlatSpec with Matchers {
   it should "sort data by specified non-first group column" in {
     DataSorter.sort(
       ReportInfo(
-        List(acTypeCol, saCol, usedMins),
-        List(saCol.field, usedMins.field),
-        List(saCol.field)),
+        List(acType, sa, usedMins),
+        List(saRF, usedMinsRF),
+        List(saRF)),
       data1) should be(
       List(
         List("AT1", "SA1", "6"),
@@ -69,9 +74,9 @@ class DataSorterTest extends FlatSpec with Matchers {
   ignore  should "sort data by > 1 group columns" in {
     DataSorter.sort(
       ReportInfo(
-        List(acTypeCol, saCol, usedMins),
-        List(saCol.field, usedMins.field),
-        List(saCol.field, usedMins.field)),
+        List(acType, sa, usedMins),
+        List(saRF, usedMinsRF),
+        List(saRF, usedMinsRF)),
       data1) should be(
       List(
         List("AT2", "SA1", "3"),
