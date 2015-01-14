@@ -11,7 +11,7 @@ object ExcelReporterSamples {
   private val saCol: ColInfo = ColInfo("serviceArea", DataType.String, "Service Area")
   private val contractMins: ColInfo = ColInfo("minutesContracted", DataType.Number, "Contract Minutes")
   private val usedMins: ColInfo = ColInfo("minutesUsed", DataType.Number, "Used Minutes")
-  private val revenue: ColInfo = ColInfo("revenue", DataType.Number, "Revenue")
+  private val revenue: ColInfo = ColInfo("revenue", DataType.Number, "Revenue", Option("0.00"))
   private val reportDate: ColInfo = ColInfo("reportDate", DataType.Date, "Report Date")
   private val reportMoney: ColInfo = ColInfo("reportMoney", DataType.Money, "$")
 

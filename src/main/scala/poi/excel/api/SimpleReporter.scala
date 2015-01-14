@@ -1,12 +1,10 @@
 package poi.excel.api
 
 import java.io.FileOutputStream
-import java.util
 
 import org.apache.poi.xssf.usermodel.{XSSFCell, XSSFWorkbook}
 import poi.excel._
 import poi.excel.api.ExcelReporter._
-
 
 
 object SimpleReporter extends Reporter{
@@ -22,17 +20,9 @@ object SimpleReporter extends Reporter{
     val wb = new XSSFWorkbook()
     val sheet = wb.createSheet(sheetName)
     val headerRow = sheet.createRow(0)
-    val columnsToShow = reportInfo.colShowList.toSet
     val colMetaData = getFilteredColumns(reportInfo).toArray
 
     sheet.setDefaultColumnWidth(columnWidth)
-
-    val columnsToShowIndexes = new util.HashSet[Int]()
-    var columnIndex = 0
-    for(item <- reportInfo.colInfo) {
-      if(columnsToShow.contains(item.field)) columnsToShowIndexes.add(columnIndex)
-      columnIndex = columnIndex + 1
-    }
 
     //header
     var columnNumber = 0
@@ -55,10 +45,16 @@ object SimpleReporter extends Reporter{
         val value = cellValue
 
         val dataConverter = CellDataConverter(colMetaData(columnNumber).dataType)
+        val columnFormatString = colMetaData(columnNumber).format
 
         val style = wb.createCellStyle()
         val format = wb.createDataFormat()
-        style.setDataFormat(format.getFormat(dataConverter.getDataFormat))
+        style.setDataFormat(format.getFormat(
+          columnFormatString match {
+            case Some(value) => value
+            case _ => dataConverter.getDataFormat
+          }
+        ))
         cell.setCellStyle(style)
         dataConverter.assignValue(value, cell)
 
