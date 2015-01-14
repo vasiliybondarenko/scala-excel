@@ -8,5 +8,6 @@ package poi.excel.examples
  * Project: scala-excel
  */
 object ExcelReportSamplesRunner extends App{
-  ExcelReporterSamples.simpleReport()
+  //ExcelReporterSamples.simpleReport()
+  ExcelReporterSamples.groupedReport()
 }

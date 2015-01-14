@@ -2,6 +2,7 @@ package poi.excel.api
 
 import java.io.FileOutputStream
 
+import org.apache.poi.ss.util.CellRangeAddress
 import org.apache.poi.xssf.usermodel.{XSSFCell, XSSFWorkbook}
 import poi.excel._
 import poi.excel.api.ExcelReporter._
@@ -34,7 +35,7 @@ object SimpleReporter extends Reporter{
 
     //body
     var rowNumber = 1
-    for(rowItem <- reportData){
+    for(rowItem <- prepareData(reportInfo, reportData)){
       val row = sheet.createRow(rowNumber + 1)
       row.createCell(0).setCellValue(rowItem.head)
 
@@ -64,10 +65,19 @@ object SimpleReporter extends Reporter{
       rowNumber = rowNumber + 1
     }
 
+    //grouping
+    //for test
+    sheet.addMergedRegion(new CellRangeAddress(2, 3, 0, 0))
+
     val resultFile = new FileOutputStream(destinationPath)
     wb.write(resultFile)
     resultFile.close
 
+  }
+
+  def prepareData(reportInfo: ReportInfo, reportData: ReportData):ReportData = reportInfo.rowGroup match {
+    case List(_) => DataSorter.sort(reportInfo, reportData)
+    case Nil => reportData
   }
 
   def getFilteredColumns(reportInfo: ReportInfo): List[ColInfo] = {
