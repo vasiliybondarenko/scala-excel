@@ -7,13 +7,13 @@ object ExcelReporterSamples {
 
   import poi.excel.api.ExcelReporter._
 
-  private val acTypeCol: ColInfo = ColInfo("aircraftType", DataType.String, "AC Type")
-  private val saCol: ColInfo = ColInfo("serviceArea", DataType.String, "Service Area")
-  private val contractMins: ColInfo = ColInfo("minutesContracted", DataType.Number, "Contract Minutes")
-  private val usedMins: ColInfo = ColInfo("minutesUsed", DataType.Number, "Used Minutes")
-  private val revenue: ColInfo = ColInfo("revenue", DataType.Number, "Revenue", Option("0.00"))
-  private val reportDate: ColInfo = ColInfo("reportDate", DataType.Date, "Report Date")
-  private val reportMoney: ColInfo = ColInfo("reportMoney", DataType.Money, "$")
+  private val acTypeCol: DataField = DataField("aircraftType", DataType.String, "AC Type")
+  private val saCol: DataField = DataField("serviceArea", DataType.String, "Service Area")
+  private val contractMins: DataField = DataField("minutesContracted", DataType.Number, "Contract Minutes")
+  private val usedMins: DataField = DataField("minutesUsed", DataType.Number, "Used Minutes")
+  private val revenue: DataField = DataField("revenue", DataType.Number, "Revenue", Option("0.00"))
+  private val reportDate: DataField = DataField("reportDate", DataType.Date, "Report Date")
+  private val reportMoney: DataField = DataField("reportMoney", DataType.Money, "$")
 
   val colInfo = List(acTypeCol, saCol, contractMins, usedMins, revenue, reportDate, reportMoney)
 
