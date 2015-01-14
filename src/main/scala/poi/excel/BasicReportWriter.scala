@@ -1,7 +1,6 @@
 package poi.excel
 
 import java.io.FileOutputStream
-import java.time.Month
 
 import org.apache.poi.ss.util.CellRangeAddress
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
@@ -17,7 +16,6 @@ object BasicReportWriter extends App{
 
   val path = "/Users/shredinger/Downloads/avail-report.xlsx"
 
-  val month = Month.FEBRUARY
   val data = Map(
     (1, "OE-GVF") -> Array("s",	 "5.50",	 "3.50",	 "9.75",	 "CR",	 "CR",	 "6.00",	 "1.17",	 "CR"),
     (2, "OE-GVG") -> Array("4.25",	 "UMX",	 "UMX",	 "2.33",	 "4.33",	 "CR",	 "CR",	 "2.50",	 "AOG"),
