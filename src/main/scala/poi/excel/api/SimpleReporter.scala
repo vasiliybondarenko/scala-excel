@@ -76,28 +76,13 @@ object SimpleReporter extends Reporter{
 
   def getFilteredColumns(reportInfo: ReportInfo): List[ColInfo] = {
     val columnsToShow = reportInfo.colShowList.toSet
-    var list:List[ColInfo] = Nil
-    for(item <- reportInfo.colInfo) {
-      if(columnsToShow.contains(item.field)) list = item :: list
-    }
-    list.reverse
+    reportInfo.colInfo.filter(c => columnsToShow.contains(c.field))
   }
 
-  //TODO: simplify
   def getVisibleCells(row: List[String], reportInfo: ReportInfo): List[String] = {
     val columnsToShow = reportInfo.colShowList.toSet
-    val columnsToShowIndexes = new util.HashSet[Int]()
-    var columnIndex = 0
-    for(item <- reportInfo.colInfo) {
-      if(columnsToShow.contains(item.field)) columnsToShowIndexes.add(columnIndex)
-      columnIndex = columnIndex + 1
-    }
-    var filteredCells:List[String] = Nil
-    columnIndex = 0
-    for(cell <- row){
-      if (columnsToShowIndexes.contains(columnIndex)) filteredCells =  cell :: filteredCells
-      columnIndex = columnIndex + 1
-    }
-    filteredCells .reverse
+    (reportInfo.colInfo zip row)
+      .filter(pair => columnsToShow.contains(pair._1.field))
+      .map(pair => pair._2)
   }
 }
