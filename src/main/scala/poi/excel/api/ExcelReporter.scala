@@ -21,35 +21,41 @@ object ExcelReporter {
   /**
    * 
    * @param field   data field name (map key)
-   * @param title   title 
-   * @param dataType data type               
+   */
+  case class DataField(field: String, dataType: DataType.Value)
+
+  /**
+   *
+   * @param field
+   * @param title
    * @param format  format string to visualize
    */
-  case class ColInfo(field: String, dataType: DataType.Value, title:String, format: Option[String] = None )
+  case class ReportField(field: String, title:String, format: Option[String] = None)
 
   // meta column list
-  type ColInfoList = List[ColInfo]
+  type DataFieldList = List[DataField]
 
   // list of strings
-  type RowGroupList = List[String]
+  type GroupFieldList = List[ReportField]
 
-  type ShowColList = List[String]
+  type ReportFieldList = List[ReportField]
 
   // 2 dims report data
-  type ReportData = List[List[String]]
+  type DataRow = List[String]
+  type DataArray = List[DataRow]
 
   // report info
-  case class ReportInfo( colInfo: ColInfoList, colShowList: ShowColList, rowGroup:RowGroupList = Nil )
+  case class ReportInfo( dataFields: DataFieldList, reportFields: ReportFieldList, rowGroup:GroupFieldList = Nil )
 
   type ReportFile = Any // TDB provide the actual data type
 
   trait Reporter {
-    def run( reportInfo: ReportInfo, reportData: ReportData) : ReportFile
+    def run( reportInfo: ReportInfo, reportData: DataArray) : ReportFile
   }
 
   def makeReporter() : Reporter = {
     return new Reporter {
-      override def run(reportInfo: ReportInfo, reportData: ReportData): ReportFile = {
+      override def run(reportInfo: ReportInfo, reportData: DataArray): ReportFile = {
         // TDB write the actual code here
         SimpleReporter.run(reportInfo, reportData)
       }

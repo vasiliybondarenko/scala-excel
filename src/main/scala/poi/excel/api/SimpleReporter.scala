@@ -17,7 +17,7 @@ object SimpleReporter extends Reporter{
   val destinationPath = "/Users/shredinger/Downloads/api_test.xlsx"
 
 
-  override def run(reportInfo: ReportInfo, reportData: ReportData): ReportFile = {
+  override def run(reportInfo: ReportInfo, reportData: DataArray): ReportFile = {
     val wb = new XSSFWorkbook()
     val sheet = wb.createSheet(sheetName)
     val headerRow = sheet.createRow(0)
@@ -80,14 +80,14 @@ object SimpleReporter extends Reporter{
     case Nil => reportData
   }
 
-  def getFilteredColumns(reportInfo: ReportInfo): List[ColInfo] = {
-    val columnsToShow = reportInfo.colShowList.toSet
-    reportInfo.colInfo.filter(c => columnsToShow.contains(c.field))
+  def getFilteredColumns(reportInfo: ReportInfo): List[DataField] = {
+    val columnsToShow = reportInfo.reportFields.toSet
+    reportInfo.dataFields.filter(c => columnsToShow.contains(c.field))
   }
 
   def getVisibleCells(row: List[String], reportInfo: ReportInfo): List[String] = {
-    val columnsToShow = reportInfo.colShowList.toSet
-    (reportInfo.colInfo zip row)
+    val columnsToShow = reportInfo.reportFields.toSet
+    (reportInfo.dataFields zip row)
       .filter(pair => columnsToShow.contains(pair._1.field))
       .map(pair => pair._2)
   }
