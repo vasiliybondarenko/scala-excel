@@ -108,17 +108,21 @@ class DataSorterTest extends FlatSpec with Matchers {
         List("AT1", "SA2", "2000"),
         List("AT1", "SA2", "2100"),
         List("AT2", "SA1", "2400"),
-        List("AT2", "SA1", "2500"),
-        List("AT3", "SA1",  "3400"),
+        List("AT3", "SA1", "2500"),
+        List("AT2", "SA1",  "3400"),
         List("AT3", "SA2",  "3200")
       )
     ) should be(
        List(
-        GroupNode("AT1", "AT1",
-          List(GroupNode("SA2", "SA2", Nil, List(0,1))), Nil),
-         GroupNode("AT2", "AT2",
-           List(GroupNode("SA1", "SA1", Nil, List(2,3))), Nil),
-       GroupNode("AT3", "AT3", Nil, List(4,5))
+        GroupNode(acType.field, "AT1",
+            GroupNode(sa.field, "SA1", Nil, List(0,1)) :: Nil,
+            Nil),
+         GroupNode(acType.field, "AT2",
+           List(
+             GroupNode(sa.field, "SA1", Nil, List(2,4)),
+             GroupNode(sa.field, "SA2", Nil, List(2,3))
+           ), Nil),
+       GroupNode(acType.field, "AT3", Nil, List(4,5))
        )
     )
 
