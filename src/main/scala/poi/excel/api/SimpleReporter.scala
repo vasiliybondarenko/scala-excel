@@ -1,9 +1,10 @@
 package poi.excel.api
 
 import java.io.FileOutputStream
+import java.util
 
 import org.apache.poi.ss.util.CellRangeAddress
-import org.apache.poi.xssf.usermodel.{XSSFCell, XSSFWorkbook}
+import org.apache.poi.xssf.usermodel.{XSSFSheet, XSSFCell, XSSFWorkbook}
 import poi.excel._
 import poi.excel.api.ExcelReporter._
 
@@ -16,18 +17,22 @@ object SimpleReporter extends Reporter{
 
   val destinationPath = "/Users/shredinger/Downloads/api_test.xlsx"
 
-
   override def run(reportInfo: ReportInfo, reportData: DataArray): ReportFile = {
+    val firstColumnIndex = 0
+    val firstRowIndex = 1
+
     val wb = new XSSFWorkbook()
     val sheet = wb.createSheet(sheetName)
     val headerRow = sheet.createRow(0)
     val dataFields = getFilteredDataFields(reportInfo).toArray
     val reportFields = getFilteredReportFields(reportInfo).toArray
+    val groupFields = reportInfo.rowGroup.map(f => f.field).toSet
+    val groupedCells = new util.LinkedHashMap[String, Int]()
 
     sheet.setDefaultColumnWidth(columnWidth)
 
     //header
-    var columnNumber = 0
+    var columnNumber = firstColumnIndex
     for(item <- getFilteredReportFields(reportInfo)) {
       val cell = headerRow.createCell(columnNumber)
       cell.setCellValue(item.title)
@@ -35,16 +40,20 @@ object SimpleReporter extends Reporter{
     }
 
     //body
-    var rowNumber = 1
+    var rowNumber = firstRowIndex
     for(rowItem <- prepareData(reportInfo, reportData)){
-      val row = sheet.createRow(rowNumber + 1)
+      val row = sheet.createRow(rowNumber)
       row.createCell(0).setCellValue(rowItem.head)
 
-      var columnNumber = 0
+      var columnNumber = firstColumnIndex
       val cells = getVisibleCells(rowItem, reportInfo)
       for(cellValue <- cells){
         val cell:XSSFCell = row.createCell(columnNumber)
         val value = cellValue
+
+        //collecting grouping data
+        //work only for one group column
+        if(groupFields.contains(dataFields(columnNumber).field)) collectGroupedCells(groupedCells, value)
 
         val dataConverter = CellDataConverter(dataFields(columnNumber).dataType)
         val columnFormatString = reportFields(columnNumber).format
@@ -67,13 +76,28 @@ object SimpleReporter extends Reporter{
     }
 
     //grouping
-    //for test
-    sheet.addMergedRegion(new CellRangeAddress(2, 3, 0, 0))
+    mergeGroupedCells(sheet, groupedCells)
 
     val resultFile = new FileOutputStream(destinationPath)
     wb.write(resultFile)
     resultFile.close
 
+  }
+
+  def mergeGroupedCells(sheet:XSSFSheet, groupedCells: util.LinkedHashMap[String, Int]) = {
+    var rowNumber = 1
+    val columnNumber = 0
+    val it = groupedCells.values().iterator()
+    while(it.hasNext){
+      val cellsCount = it.next()
+      sheet.addMergedRegion(new CellRangeAddress(rowNumber, rowNumber + cellsCount - 1, columnNumber, columnNumber))
+      rowNumber = rowNumber + cellsCount
+    }
+  }
+
+  def collectGroupedCells(cells: util.LinkedHashMap[String, Int], cellValue:String) = {
+    if (!cells.containsKey(cellValue)) cells.put(cellValue, 1)
+    else cells.put(cellValue, cells.get(cellValue) + 1)
   }
 
   def prepareData(reportInfo: ReportInfo, reportData: DataArray):DataArray = reportInfo.rowGroup match {

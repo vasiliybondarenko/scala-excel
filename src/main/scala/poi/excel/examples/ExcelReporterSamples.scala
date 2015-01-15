@@ -45,7 +45,7 @@ object ExcelReporterSamples {
   def groupedReport(): Unit = {
     // group same report by aircraft type id
     val repInfo = ReportInfo(dataFields,
-      List(acTypeRepField, saRF, revenueRF, reportDateRF, contractMinsRF),
+      List(acTypeRepField, saRF, contractMinsRF, revenueRF, reportDateRF),
       List(acTypeRepField)
     )
     makeReporter().run(repInfo, data)
