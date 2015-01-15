@@ -1,6 +1,7 @@
 package poi.excel
 
 import org.scalatest.{FlatSpec, Matchers}
+import poi.excel.GroupHelper.GroupNode
 import poi.excel.api.ExcelReporter._
 
 /**
@@ -96,6 +97,36 @@ class DataSorterTest extends FlatSpec with Matchers {
         List("AT3", "SA3", "6")
       )
     )
+  }
+
+  it should "create group structure by reportData" in {
+    GroupHelper.createGroupNodes(ReportInfo(
+      List(acType, sa, usedMins),
+      List(acTypeRF, saRF),
+      List(acTypeRF, saRF)),
+      List(
+        List("AT1", "SA2", "2000"),
+        List("AT1", "SA2", "2100"),
+        List("AT2", "SA1", "2400"),
+        List("AT2", "SA1", "2500"),
+        List("AT3", "SA1",  "3400"),
+        List("AT3", "SA2",  "3200")
+      )
+    ) should be(
+       List(
+        GroupNode("AT1", "AT1",
+          List(GroupNode("SA2", "SA2", Nil, List(0,1))), Nil),
+         GroupNode("AT2", "AT2",
+           List(GroupNode("SA1", "SA1", Nil, List(2,3))), Nil),
+       GroupNode("AT3", "AT3", Nil, List(4,5))
+       )
+    )
+
+
+
+
+
+
   }
 
 }
