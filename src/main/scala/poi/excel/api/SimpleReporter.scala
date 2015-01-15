@@ -4,10 +4,12 @@ import java.io.FileOutputStream
 import java.util
 
 import org.apache.poi.ss.util.CellRangeAddress
-import org.apache.poi.xssf.usermodel.{XSSFSheet, XSSFCell, XSSFWorkbook}
+import org.apache.poi.xssf.usermodel.{XSSFCell, XSSFSheet, XSSFWorkbook}
 import poi.excel._
 import poi.excel.api.ExcelReporter._
 
+import scala.collection.JavaConverters._
+//import scala.collection.JavaConverters._
 
 object SimpleReporter extends Reporter{
 
@@ -27,7 +29,7 @@ object SimpleReporter extends Reporter{
     val dataFields = getFilteredDataFields(reportInfo).toArray
     val reportFields = getFilteredReportFields(reportInfo).toArray
     val groupFields = reportInfo.rowGroup.map(f => f.field).toSet
-    val groupedCells = new util.LinkedHashMap[String, Int]()
+    val groupedCells = new util.LinkedHashMap[Int, GroupData]()
 
     sheet.setDefaultColumnWidth(columnWidth)
 
@@ -52,8 +54,8 @@ object SimpleReporter extends Reporter{
         val value = cellValue
 
         //collecting grouping data
-        //work only for one group column
-        if(groupFields.contains(dataFields(columnNumber).field)) collectGroupedCells(groupedCells, value)
+        if(groupFields.contains(dataFields(columnNumber).field))
+          collectGroupedCells(groupedCells, value, columnNumber, rowNumber)
 
         val dataConverter = CellDataConverter(dataFields(columnNumber).dataType)
         val columnFormatString = reportFields(columnNumber).format
@@ -84,25 +86,51 @@ object SimpleReporter extends Reporter{
 
   }
 
-  def mergeGroupedCells(sheet:XSSFSheet, groupedCells: util.LinkedHashMap[String, Int]) = {
-    var rowNumber = 1
-    val columnNumber = 0
+  //Incorrect
+  def mergeGroupedCells(sheet:XSSFSheet, groupedCells: util.LinkedHashMap[Int, GroupData]) = {
     val it = groupedCells.values().iterator()
-    while(it.hasNext){
-      val cellsCount = it.next()
-      sheet.addMergedRegion(new CellRangeAddress(rowNumber, rowNumber + cellsCount - 1, columnNumber, columnNumber))
-      rowNumber = rowNumber + cellsCount
+    var prevColumnGroupData:GroupData = null
+    while (it.hasNext){
+      val groupData = it.next()
+      var rowNumber = 1
+      val columnNumber = groupData.columnIndex
+      var prevCount = groupData.counts.get(0)
+      for(count <- groupData.counts.asScala){
+        val currentCount = getGroupCount(prevColumnGroupData, rowNumber, columnNumber, count)
+        println((rowNumber, columnNumber, currentCount, count))
+        sheet.addMergedRegion(new CellRangeAddress(rowNumber,  rowNumber + currentCount - 1, columnNumber, columnNumber))
+        rowNumber = rowNumber + currentCount
+        prevCount = count
+      }
+      prevColumnGroupData = groupData
     }
   }
 
-  def collectGroupedCells(cells: util.LinkedHashMap[String, Int], cellValue:String) = {
-    if (!cells.containsKey(cellValue)) cells.put(cellValue, 1)
-    else cells.put(cellValue, cells.get(cellValue) + 1)
+  def getGroupCount(prevGroupData: GroupData, row:Int, col:Int, count:Int):Int = {
+    def findPrevRow(counts:List[Int], row:Int):(Int, Int) = {
+      var prevColRow = 0
+      for(c <- counts){
+        if(row >= prevColRow)  return (prevColRow, c) else
+          prevColRow = prevColRow + c - 1
+      }
+      prevColRow -> 0
+    }
+
+    if(prevGroupData == null) count else {
+      val counts = prevGroupData.counts.asScala
+      val (_, prevColRowCount) = findPrevRow(prevGroupData.counts.asScala.toList, row)
+      prevColRowCount min count
+    }
+  }
+
+  def collectGroupedCells(cells: util.LinkedHashMap[Int, GroupData], cellValue:String, column:Int, row:Int) = {
+    if (!cells.containsKey(column)) cells.put(column, GroupData(column))
+    cells.get(column).collect(cellValue, row)
   }
 
   def prepareData(reportInfo: ReportInfo, reportData: DataArray):DataArray = reportInfo.rowGroup match {
-    case List(_) => DataSorter.sort(reportInfo, reportData)
     case Nil => reportData
+    case _ => DataSorter.sort(reportInfo, reportData)
   }
 
   def getFilteredReportFields(reportInfo: ReportInfo): List[ReportField] = {
@@ -119,5 +147,26 @@ object SimpleReporter extends Reporter{
     (reportInfo.dataFields zip row)
       .filter(pair => columnsToShow.contains(pair._1.field))
       .map(pair => pair._2)
+  }
+
+  case class GroupData(columnIndex: Int){
+    private val cellValues = new util.ArrayList[String]()
+    val counts = new util.ArrayList[Int]()
+
+    def collect(value:String, rowIndex:Int) = {
+      if(cellValues.isEmpty) {
+        cellValues.add(value)
+        counts.add(1)
+      } else {
+        if(cellValues.get(cellValues.size() - 1) != value){
+          cellValues.add(value)
+          counts.add(1)
+        } else {
+          val lastIndex = counts.size() - 1
+          cellValues.add(value)
+          counts.set(lastIndex, counts.get(lastIndex) + 1)
+        }
+      }
+    }
   }
 }

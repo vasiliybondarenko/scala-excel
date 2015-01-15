@@ -26,8 +26,8 @@ object ExcelReporterSamples {
   val dataFields = List(acTypeCol, saCol, contractMins, usedMins, revenue, reportDate, reportMoney)
 
   val data = List(
-    List("AT1", "SA1", "2000", "1000", "1000000", "2015/01/15", "2000"),
-    List("AT2", "SA1", "2500", "1200", "2000000", "2015/01/14", "123000"),
+    List("AT1", "SA2", "2000", "1000", "1000000", "2015/01/15", "2000"),
+    List("AT2", "SA2", "2500", "1200", "2000000", "2015/01/14", "123000"),
     List("AT3", "SA1",  "3400", "1700", "1800000", "2015/01/12", "123000"),
     List("AT1", "SA2", "2100", "1100", "2500000", "2015/02/01", "123000"),
     List("AT2", "SA2", "2400", "1300", "2300000", "2015/01/28", "123000"),
@@ -46,7 +46,7 @@ object ExcelReporterSamples {
     // group same report by aircraft type id
     val repInfo = ReportInfo(dataFields,
       List(acTypeRepField, saRF, contractMinsRF, revenueRF, reportDateRF),
-      List(acTypeRepField)
+      List(acTypeRepField, saRF)
     )
     makeReporter().run(repInfo, data)
   }

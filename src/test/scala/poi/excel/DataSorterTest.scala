@@ -39,6 +39,15 @@ class DataSorterTest extends FlatSpec with Matchers {
     List("AT2", "SA3", "1")
   )
 
+  val data2 = List(
+    List("AT3", "SA3", "6"),
+    List("AT2", "SA2", "5"),
+    List("AT1", "SA3", "4"),
+    List("AT3", "SA1", "3"),
+    List("AT2", "SA1", "2"),
+    List("AT1", "SA2", "1")
+  )
+
   it should "sort data by group column" in {
     DataSorter.sort(ReportInfo(List(acType, sa), List(acTypeRF, saRF), List(acTypeRF)), data) should be(
       List(
@@ -71,20 +80,20 @@ class DataSorterTest extends FlatSpec with Matchers {
   }
 
   //not implemented
-  ignore  should "sort data by > 1 group columns" in {
+  it  should "sort data by > 1 group columns" in {
     DataSorter.sort(
       ReportInfo(
         List(acType, sa, usedMins),
-        List(saRF, usedMinsRF),
-        List(saRF, usedMinsRF)),
-      data1) should be(
+        List(acTypeRF, saRF),
+        List(acTypeRF, saRF)),
+      data2) should be(
       List(
-        List("AT2", "SA1", "3"),
-        List("AT1", "SA1", "6"),
-        List("AT2", "SA2", "2"),
-        List("AT1", "SA2", "5"),
-        List("AT2", "SA3", "1"),
-        List("AT1", "SA3", "4")
+        List("AT1", "SA2", "1"),
+        List("AT1", "SA3", "4"),
+        List("AT2", "SA1", "2"),
+        List("AT2", "SA2", "5"),
+        List("AT3", "SA1", "3"),
+        List("AT3", "SA3", "6")
       )
     )
   }
