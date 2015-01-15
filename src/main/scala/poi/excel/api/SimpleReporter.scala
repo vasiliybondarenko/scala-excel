@@ -23,6 +23,8 @@ object SimpleReporter extends Reporter{
     val firstColumnIndex = 0
     val firstRowIndex = 1
 
+
+
     val wb = new XSSFWorkbook()
     val sheet = wb.createSheet(sheetName)
     val headerRow = sheet.createRow(0)
@@ -30,6 +32,34 @@ object SimpleReporter extends Reporter{
     val reportFields = getFilteredReportFields(reportInfo).toArray
     val groupFields = reportInfo.rowGroup.map(f => f.field).toSet
     val groupedCells = new util.LinkedHashMap[Int, GroupData]()
+
+    // Data array zipped with index
+    type DataArrayZipIdx = List[(DataRow,Int)]
+
+    // TBD: for a given row get a value by key
+    def valueByField(row: DataRow, id:String) : String = null
+
+    /**
+     * Describes a node in the heirarchy group
+     * @param keyField key field id
+     * @param keyVal key value
+     * @param children  list of children nodes
+     * @param leafs list of lear row ids (only when children.isEmpty)
+     */
+    case class GroupNode(keyField: String, keyVal:String, children:List[GroupNode], leafs: List[Int])
+
+    // data fields zipped with index
+    val dataFieldsZipIdx:DataArrayZipIdx = reportData.zipWithIndex
+
+
+
+    val groupsNodes:List[GroupNode] = groupFields.toList.map { fld =>
+      // TODO must be implemeneted
+      null
+    }
+
+
+
 
     sheet.setDefaultColumnWidth(columnWidth)
 
