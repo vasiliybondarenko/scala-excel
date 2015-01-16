@@ -30,10 +30,6 @@ object SimpleReporter extends Reporter{
     val headerRow = sheet.createRow(0)
     val dataFields = getFilteredDataFields(reportInfo).toArray
     val reportFields = getFilteredReportFields(reportInfo).toArray
-    val groupFields = reportInfo.rowGroup.map(f => f.field).toSet
-    val groupedCells = new util.LinkedHashMap[Int, GroupData]()
-
-
 
     sheet.setDefaultColumnWidth(columnWidth)
 
@@ -80,16 +76,18 @@ object SimpleReporter extends Reporter{
     }
 
     //grouping
-    val groupNodes = GroupHelper.createGroupNodes(reportInfo, preparedData)
-    val mergeRegions = GroupHelper.getMergeRegions(groupNodes)
-    val fieldsWithIndexes = filteredReportFields.map(f => f.field).zipWithIndex.toMap
-    mergeRegions.foreach(mergeRegion => {
-      val columnIndex = fieldsWithIndexes.get(mergeRegion.field).get
-      sheet.addMergedRegion(new CellRangeAddress(firstRowIndex + mergeRegion.firstRow, firstRowIndex + mergeRegion.lastRow, columnIndex, columnIndex))
-    })
-
-    groupNodes.foreach(println)
-    mergeRegions.foreach(println)
+    reportInfo.rowGroup match {
+      case Nil =>
+      case _ => {
+        val groupNodes = GroupHelper.createGroupNodes(reportInfo, preparedData)
+        val mergeRegions = GroupHelper.getMergeRegions(groupNodes)
+        val fieldsWithIndexes = filteredReportFields.map(f => f.field).zipWithIndex.toMap
+        mergeRegions.foreach(mergeRegion => {
+          val columnIndex = fieldsWithIndexes.get(mergeRegion.field).get
+          sheet.addMergedRegion(new CellRangeAddress(firstRowIndex + mergeRegion.firstRow, firstRowIndex + mergeRegion.lastRow, columnIndex, columnIndex))
+        })
+      }
+    }
 
     val resultFile = new FileOutputStream(destinationPath)
     wb.write(resultFile)
