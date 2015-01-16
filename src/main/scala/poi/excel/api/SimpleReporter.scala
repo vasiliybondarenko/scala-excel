@@ -1,8 +1,6 @@
 package poi.excel.api
 
 import java.io.FileOutputStream
-import java.util
-
 
 import org.apache.poi.ss.util.CellRangeAddress
 import org.apache.poi.xssf.usermodel.{XSSFCell, XSSFWorkbook}
@@ -114,26 +112,5 @@ object SimpleReporter extends Reporter{
     (reportInfo.dataFields zip row)
       .filter(pair => columnsToShow.contains(pair._1.field))
       .map(pair => pair._2)
-  }
-
-  case class GroupData(columnIndex: Int){
-    private val cellValues = new util.ArrayList[String]()
-    val counts = new util.ArrayList[Int]()
-
-    def collect(value:String, rowIndex:Int) = {
-      if(cellValues.isEmpty) {
-        cellValues.add(value)
-        counts.add(1)
-      } else {
-        if(cellValues.get(cellValues.size() - 1) != value){
-          cellValues.add(value)
-          counts.add(1)
-        } else {
-          val lastIndex = counts.size() - 1
-          cellValues.add(value)
-          counts.set(lastIndex, counts.get(lastIndex) + 1)
-        }
-      }
-    }
   }
 }
