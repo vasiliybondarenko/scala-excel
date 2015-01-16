@@ -22,6 +22,8 @@ object GroupHelper {
    */
   case class GroupNode(keyField: String, keyVal:String, children:List[GroupNode], leafs: List[Int])
 
+  case class MergeRegion(field:String, firstRow:Int, lastRow:Int)
+
   def createGroupNodes(reportInfo: ReportInfo, reportData: DataArray): List[GroupNode] = {
     // data fields zipped with index
     val dataFieldsZipIdx:DataArrayZipIdx = reportData.zipWithIndex
@@ -54,5 +56,23 @@ object GroupHelper {
     }
 
     createGroupNodes(dataFieldsZipIdx, groupFields)
+  }
+
+  def getMergeRegions(groupNodes: List[GroupNode]):List[MergeRegion] = {
+    groupNodes.map(groupNode =>
+      groupNode.leafs match {
+        case Nil => {
+          val leaves = getAllLeaves(groupNode.children)
+          MergeRegion(groupNode.keyField, leaves.min, leaves.max) :: getMergeRegions(groupNode.children)
+        }
+        case _ => MergeRegion(groupNode.keyField, groupNode.leafs.min, groupNode.leafs.max) :: Nil
+      }).flatten
+  }
+
+  private def getAllLeaves(children: List[GroupNode]): List[Int] = {
+    children.map(node => node.leafs match {
+      case Nil => getAllLeaves(node.children)
+      case _ => node.leafs
+    }).flatten.sortWith(_ < _)
   }
 }

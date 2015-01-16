@@ -1,7 +1,7 @@
 package poi.excel
 
 import org.scalatest.{FlatSpec, Matchers}
-import poi.excel.GroupHelper.GroupNode
+import poi.excel.GroupHelper.{MergeRegion, GroupNode}
 import poi.excel.api.ExcelReporter._
 
 /**
@@ -147,6 +147,46 @@ class DataSorterTest extends FlatSpec with Matchers {
           Nil)
       )
     )
+  }
+
+  it should "create merge regions by group nodes for one group field" in {
+    GroupHelper.getMergeRegions(
+      List(
+        GroupNode(acType.field, "AT1", Nil, List(0, 1)),
+        GroupNode(acType.field, "AT2", Nil, List(2, 3)),
+        GroupNode(acType.field, "AT3", Nil, List(4, 5))
+      )
+    ) should be(
+      List(
+        MergeRegion(acType.field, 0, 1),
+        MergeRegion(acType.field, 2, 3),
+        MergeRegion(acType.field, 4, 5)
+      )
+    )
+  }
+
+  it should "create merge regions by group nodes for multiple group fields" in {
+    GroupHelper.getMergeRegions(
+      List(
+        GroupNode(acType.field, "AT1",
+          GroupNode(sa.field, "SA2", Nil, List(0,1)) :: Nil,
+          Nil),
+        GroupNode(acType.field, "AT2",
+          GroupNode(sa.field, "SA1", Nil, List(2,3)) :: Nil,
+          Nil),
+        GroupNode(acType.field, "AT3",
+          GroupNode(sa.field, "SA1", Nil, List(4)) :: GroupNode(sa.field, "SA2", Nil, List(5)) :: Nil,
+          Nil)
+      )
+    ) should contain allOf (
+        MergeRegion(acType.field, 0, 1),
+        MergeRegion(acType.field, 2, 3),
+        MergeRegion(sa.field, 0, 1),
+        MergeRegion(sa.field, 2, 3),
+        MergeRegion(sa.field, 4, 4),
+        MergeRegion(sa.field, 5, 5)
+    )
+
   }
 
 }
