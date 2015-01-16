@@ -22,24 +22,37 @@ object GroupHelper {
    */
   case class GroupNode(keyField: String, keyVal:String, children:List[GroupNode], leafs: List[Int])
 
-  // TBD: for a given row get a value by key
-  def valueByField(row: DataRow, id:String) : String = null
-
   def createGroupNodes(reportInfo: ReportInfo, reportData: DataArray): List[GroupNode] = {
     // data fields zipped with index
     val dataFieldsZipIdx:DataArrayZipIdx = reportData.zipWithIndex
 
-    val groupFields = reportInfo.rowGroup.map(f => f.field)
+    // TBD: for a given row get a value by key
+    //TODO: optimize
+    def valueByField(row: DataRow, id:String) : String = (reportInfo.dataFields.map(x => x.field) zip row).toMap.get(id).get
 
+    val groupFields = reportInfo.rowGroup.map(f => f.field)
 
     val groupsNodes:List[GroupNode] = groupFields.map { fld =>
       // TODO must be implemeneted
       null
     }
 
-    groupsNodes
+    def createGroupNodes(dataArray:DataArrayZipIdx, groupFields:List[String]):List[GroupNode] = {
+
+      dataArray.groupBy(record => valueByField(record._1, groupFields.head))
+        .map(x => GroupNode(groupFields.head, x._1,
+          groupFields.tail match {
+            case Nil => List()
+            case _ => createGroupNodes(x._2, groupFields.tail)
+          },
+          groupFields.tail match {
+            case Nil => x._2.map(dataRowWithIndex => dataRowWithIndex._2)
+            case _ => Nil
+          })
+        )
+        .toList.sortWith((l, r) => l.keyVal < r.keyVal)
+    }
+
+    createGroupNodes(dataFieldsZipIdx, groupFields)
   }
-
-
-
 }
