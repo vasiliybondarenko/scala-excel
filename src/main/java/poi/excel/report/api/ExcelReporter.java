@@ -11,8 +11,10 @@ import java.util.List;
  */
 public class ExcelReporter implements Reporter{
 
+    private final Reporter reporter = new SimpleReporter();
+
     @Override
     public void run(ReportInfo reportInfo, List<List<String>> reportData) {
-
+        reporter.run(reportInfo, reportData);
     }
 }

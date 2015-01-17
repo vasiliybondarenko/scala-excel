@@ -11,12 +11,16 @@ public class ReportField {
 
     private final String field;
     private final String title;
-    private final String format;
+    private String format;
 
     public ReportField(String field, String title, String format) {
+        this(field, title);
+        this.format = format;
+    }
+
+    public ReportField(String field, String title) {
         this.field = field;
         this.title = title;
-        this.format = format;
     }
 
     public String getField() {

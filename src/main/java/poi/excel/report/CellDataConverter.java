@@ -10,10 +10,10 @@ import poi.excel.report.api.DataType;
  * Time: 2:32 PM
  * Project: scala-excel
  */
-abstract class CellDataConverter{
+public abstract class CellDataConverter{
     final DataType dataType;
 
-    protected CellDataConverter(DataType dataType) {
+    public CellDataConverter(DataType dataType) {
         this.dataType = dataType;
     }
 

@@ -1,14 +1,15 @@
 package poi.excel.report.api;
 
-import org.apache.poi.xssf.usermodel.XSSFCell;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.usermodel.*;
+import poi.excel.report.CellDataConverter;
+import poi.excel.report.CellDataConverterFactory;
+import poi.excel.report.DataSorter;
 import poi.excel.report.util.Utils;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -47,6 +48,30 @@ public class SimpleReporter implements Reporter{
             columnNumber = columnNumber + 1;
         }
 
+        //body
+        List<List<String>> preparedData = prepareData(reportInfo, reportData);
+        int rowNumber = firstRowIndex;
+        for(int r = 0; r < preparedData.size(); r ++){
+            List<String> cells = getVisibleCells(preparedData.get(r), reportInfo);
+            XSSFRow row = sheet.createRow(r + firstRowIndex);
+            row.createCell(0).setCellValue(cells.get(0));
+
+
+            for (int col = 0; col < cells.size(); col ++){
+                XSSFCell cell = row.createCell(firstColumnIndex + col);
+
+                DataType dataType = dataFields.get(col).getDataType();
+                CellDataConverter cellDataConverter = CellDataConverterFactory.create(dataType);
+                String columnFormatString = reportFields.get(col).getFormat();
+                XSSFCellStyle style = wb.createCellStyle();
+                XSSFDataFormat format = wb.createDataFormat();
+                String formatString = columnFormatString != null ? columnFormatString : cellDataConverter.getDataFormat();
+                style.setDataFormat(format.getFormat(formatString));
+                cell.setCellStyle(style);
+                cellDataConverter.assignValue(cells.get(col), cell);
+            }
+        }
+
         sheet.setDefaultColumnWidth(columnWidth);
 
         FileOutputStream resultFile = null;
@@ -60,11 +85,34 @@ public class SimpleReporter implements Reporter{
 
     }
 
+    private List<String> getVisibleCells(List<String> rowData, ReportInfo reportInfo){
+        Set<String> reportFields = new HashSet<String>();
+        for(ReportField rf: Utils.toSet(reportInfo.getReportFields())){
+            reportFields.add(rf.getField());
+        }
+        ArrayList<String> cells = new ArrayList<>();
+        for(int i = 0; i < rowData.size(); i ++){
+            if(reportFields.contains(reportInfo.getDataFields().get(i).getField())){
+                cells.add(rowData.get(i));
+            }
+        }
+        return cells;
+    }
+
+    private List<List<String>> prepareData(ReportInfo reportInfo, List<List<String>> reportData){
+        if(reportInfo.getRowGroup().isEmpty())
+            return reportData;
+        else return DataSorter.sort(reportInfo, reportData);
+    }
+
     private List<DataField> getFilteredDataFields(ReportInfo reportInfo){
-        Set<ReportField> reportFields = Utils.toSet(reportInfo.getReportFields());
+        Set<String> reportFields = new HashSet<String>();
+        for(ReportField rf: Utils.toSet(reportInfo.getReportFields())){
+            reportFields.add(rf.getField());
+        }
         ArrayList<DataField> dataFields = new ArrayList<>();
         for(DataField dataField: reportInfo.getDataFields()){
-            if(reportFields.contains(dataField)){
+            if(reportFields.contains(dataField.getField())){
                 dataFields.add(dataField);
             }
         }
