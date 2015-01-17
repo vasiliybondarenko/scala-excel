@@ -30,7 +30,10 @@ object GroupHelper {
 
     // TBD: for a given row get a value by key
     //TODO: optimize
-    def valueByField(row: DataRow, id:String) : String = (reportInfo.dataFields.map(x => x.field) zip row).toMap.get(id).get
+    lazy val dataFieldIndexById: Map[String, Int] = (reportInfo.dataFields.map(x => x.field) zipWithIndex).toMap
+    def valueByField(row: DataRow, id:String) : String = {
+      row(dataFieldIndexById.get(id).get)
+    }
 
     val groupFields = reportInfo.rowGroup.map(f => f.field)
 
@@ -73,6 +76,6 @@ object GroupHelper {
     children.map(node => node.leafs match {
       case Nil => getAllLeaves(node.children)
       case _ => node.leafs
-    }).flatten.sortWith(_ < _)
+    }).flatten.sorted
   }
 }
