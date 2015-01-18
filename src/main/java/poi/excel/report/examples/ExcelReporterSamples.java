@@ -60,7 +60,8 @@ public class ExcelReporterSamples {
     }
 
     public static void main(String[] args) {
-        new ExcelReporterSamples().simpleReport();
+        //new ExcelReporterSamples().simpleReport();
+        new ExcelReporterSamples().groupReport();
     }
 
 }

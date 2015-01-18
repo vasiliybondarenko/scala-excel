@@ -1,4 +1,4 @@
-package poi.excel.report;
+package poi.excel.report.converters;
 
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import poi.excel.report.api.DataType;
@@ -7,20 +7,20 @@ import poi.excel.report.api.DataType;
  * Created with IntelliJ IDEA.
  * Author: shredinger
  * Date: 1/16/15
- * Time: 3:47 PM
+ * Time: 3:38 PM
  * Project: scala-excel
  */
-public class MoneyConverter extends CellDataConverter{
+public class NumberConverter extends CellDataConverter{
 
-    private final String DEFAULT_CURRENCY_FORMAT = "$#,##0.00";
+    private final String DEFAULT_NUMBER_FORMAT = "0.0000";
 
-    public MoneyConverter(DataType dataType) {
+    public NumberConverter(DataType dataType) {
         super(dataType);
     }
 
     @Override
     public String getDataFormat() {
-        return DEFAULT_CURRENCY_FORMAT;
+        return DEFAULT_NUMBER_FORMAT;
     }
 
     @Override
