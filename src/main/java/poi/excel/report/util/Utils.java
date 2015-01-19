@@ -53,6 +53,12 @@ public class Utils {
         return map;
     }
 
+    public static <T> void foreach(Collection<T> c, Action<T> action){
+        for(T e: c){
+            action.apply(e);
+        }
+    }
+
 
     public static class Tuple<T1, T2>{
         private final T1 filed1;

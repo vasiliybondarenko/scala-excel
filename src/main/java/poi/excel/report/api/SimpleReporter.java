@@ -1,17 +1,18 @@
 package poi.excel.report.api;
 
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
+import poi.excel.report.DataSorter;
+import poi.excel.report.GroupHelper;
+import poi.excel.report.GroupNode;
+import poi.excel.report.MergeRegion;
 import poi.excel.report.converters.CellDataConverter;
 import poi.excel.report.converters.CellDataConverterFactory;
-import poi.excel.report.DataSorter;
 import poi.excel.report.util.Utils;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -72,6 +73,20 @@ public class SimpleReporter implements Reporter{
             }
         }
 
+        //grouping
+        if(!reportInfo.getRowGroup().isEmpty()){
+            List<GroupNode> groupNodes = GroupHelper.createGroupNodes(reportInfo, preparedData);
+            List<MergeRegion> mergeRegions = GroupHelper.getMergeRegions(groupNodes);
+
+            Map<String, Integer> fieldsWithIndexes = getFieldsWithIndexes(filteredReportFields);
+            for (MergeRegion mergeRegion: mergeRegions){
+                Integer colIndex = fieldsWithIndexes.get(mergeRegion.getField());
+                int firstRow = mergeRegion.getFirstRow() + firstRowIndex;
+                int lastRow = mergeRegion.getLastRow() + firstRowIndex;
+                sheet.addMergedRegion(new CellRangeAddress(firstRow, lastRow, colIndex, colIndex));
+            }
+        }
+
         sheet.setDefaultColumnWidth(columnWidth);
 
         FileOutputStream resultFile = null;
@@ -83,6 +98,14 @@ public class SimpleReporter implements Reporter{
             throw new RuntimeException(e);
         }
 
+    }
+
+    private Map<String, Integer> getFieldsWithIndexes(List<ReportField> reportFields){
+        HashMap<String, Integer> fieldsWithIndexes = new HashMap<>();
+        for (int i = 0; i < reportFields.size(); i++) {
+            fieldsWithIndexes.put(reportFields.get(i).getField(), i);
+        }
+        return fieldsWithIndexes;
     }
 
     private List<String> getVisibleCells(List<String> rowData, ReportInfo reportInfo){
