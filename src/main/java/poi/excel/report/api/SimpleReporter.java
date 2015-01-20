@@ -6,6 +6,7 @@ import org.apache.poi.xssf.usermodel.*;
 import poi.excel.report.*;
 import poi.excel.report.converters.CellDataConverter;
 import poi.excel.report.converters.CellDataConverterFactory;
+import poi.excel.report.util.ImageHelper;
 import poi.excel.report.util.Utils;
 
 import java.io.FileOutputStream;
@@ -25,6 +26,9 @@ public class SimpleReporter implements Reporter, ReportStyle{
     private final int columnWidth = 20;
 
     private final String destinationPath = "/Users/shredinger/Downloads/java_port_test.xlsx";
+
+    //TODO: replace with relative path
+    private final String logoImagePath = "/Users/shredinger/Documents/TI/scala-excel/src/main/resources/logo.png";
 
     @Override
     public void run(ReportInfo reportInfo, List<List<String>> reportData) {
@@ -46,6 +50,13 @@ public class SimpleReporter implements Reporter, ReportStyle{
         XSSFCell titleCell = titleRow.createCell(titleStartColumnIndex);
         titleCell.setCellValue(reportInfo.getTitleName());
         titleCell.setCellStyle(getTitleRowStyle(wb));
+        try {
+            //TODO: place image in proper place
+            ImageHelper.addLogoImageToWorkBook(wb, sheet, logoImagePath, titleStartColumnIndex + 1, titleStartRowIndex);
+        } catch (Exception e) {
+            //TODO: handle exception
+            e.printStackTrace();
+        }
 
 
         //header
@@ -163,6 +174,8 @@ public class SimpleReporter implements Reporter, ReportStyle{
         }
         return cells;
     }
+
+
 
     private List<List<String>> prepareData(ReportInfo reportInfo, List<List<String>> reportData){
         if(reportInfo.getRowGroup().isEmpty())
