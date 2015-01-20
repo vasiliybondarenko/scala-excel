@@ -1,11 +1,9 @@
 package poi.excel.report.api;
 
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
-import poi.excel.report.DataSorter;
-import poi.excel.report.GroupHelper;
-import poi.excel.report.GroupNode;
-import poi.excel.report.MergeRegion;
+import poi.excel.report.*;
 import poi.excel.report.converters.CellDataConverter;
 import poi.excel.report.converters.CellDataConverterFactory;
 import poi.excel.report.util.Utils;
@@ -21,9 +19,8 @@ import java.util.*;
  * Time: 4:36 PM
  * Project: scala-excel
  */
-public class SimpleReporter implements Reporter{
+public class SimpleReporter implements Reporter, ReportStyle{
 
-    private final String sheetName = "Avail report - All prod";
 
     private final int columnWidth = 20;
 
@@ -32,26 +29,38 @@ public class SimpleReporter implements Reporter{
     @Override
     public void run(ReportInfo reportInfo, List<List<String>> reportData) {
         final int firstColumnIndex = 0;
-        final int firstRowIndex = 1;
+        final int firstRowIndex = 4;
 
         XSSFWorkbook wb = new XSSFWorkbook();
-        XSSFSheet sheet = wb.createSheet(sheetName);
-        XSSFRow headerRow = sheet.createRow(0);
+        XSSFSheet sheet = wb.createSheet(reportInfo.getSpreadshitName());
+        XSSFRow headerRow = sheet.createRow(firstRowIndex - 1);
         List<DataField> dataFields = getFilteredDataFields(reportInfo);
         List<ReportField> reportFields = getFilteredReportFields(reportInfo);
+
+        //title/logo
+        int titleStartColumnIndex = 2;
+        int titleStartRowIndex = 1;
+        short titleRowHeight = (short)500;
+        XSSFRow titleRow = sheet.createRow(titleStartRowIndex);
+        titleRow.setHeight(titleRowHeight);
+        XSSFCell titleCell = titleRow.createCell(titleStartColumnIndex);
+        titleCell.setCellValue(reportInfo.getTitleName());
+        titleCell.setCellStyle(getTitleRowStyle(wb));
+
 
         //header
         int columnNumber = firstColumnIndex;
         List<ReportField> filteredReportFields = getFilteredReportFields(reportInfo);
+        XSSFCellStyle headerRowStyle = getHeaderRowStyle(wb);
         for(ReportField item: filteredReportFields) {
             XSSFCell cell = headerRow.createCell(columnNumber);
             cell.setCellValue(item.getTitle());
             columnNumber = columnNumber + 1;
+            cell.setCellStyle(headerRowStyle);
         }
 
         //body
         List<List<String>> preparedData = prepareData(reportInfo, reportData);
-        int rowNumber = firstRowIndex;
         for(int r = 0; r < preparedData.size(); r ++){
             List<String> cells = getVisibleCells(preparedData.get(r), reportInfo);
             XSSFRow row = sheet.createRow(r + firstRowIndex);
@@ -98,6 +107,39 @@ public class SimpleReporter implements Reporter{
             throw new RuntimeException(e);
         }
 
+    }
+
+    private XSSFCellStyle getStyle(XSSFWorkbook wb, CellFontInfo cellStyleInfo){
+        XSSFCellStyle style = wb.createCellStyle();
+        XSSFFont font = wb.createFont();
+
+        if(cellStyleInfo.fontSize != null){
+            font.setFontHeightInPoints(cellStyleInfo.fontSize);
+        }
+
+        if(cellStyleInfo.fontColor != null){
+            font.setColor(cellStyleInfo.fontColor);
+        }
+
+        if(cellStyleInfo.boldWeight != null){
+            font.setBoldweight(cellStyleInfo.boldWeight);
+        }
+
+        if(cellStyleInfo.backgroundColor != null){
+            style.setFillBackgroundColor(cellStyleInfo.backgroundColor);
+            style.setFillPattern(CellStyle.BIG_SPOTS);
+        }
+
+        style.setFont(font);
+        return style;
+    }
+
+    private XSSFCellStyle getTitleRowStyle(XSSFWorkbook wb){
+        return getStyle(wb, new CellFontInfo(TITLE_FONT_COLOR, TITLE_FONT_SIZE, null, BOLD_WEIGHT));
+    }
+
+    private XSSFCellStyle getHeaderRowStyle(XSSFWorkbook wb){
+        return getStyle(wb, new CellFontInfo(HEADER_FONT_COLOR, null, HEADER_BACKGROUND_COLOR, BOLD_WEIGHT_NORMAL));
     }
 
     private Map<String, Integer> getFieldsWithIndexes(List<ReportField> reportFields){

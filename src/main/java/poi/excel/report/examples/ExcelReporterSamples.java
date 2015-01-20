@@ -46,16 +46,16 @@ public class ExcelReporterSamples {
     public void simpleReport(){
         ReportInfo repInfo = new ReportInfo(dataFields,
                 Arrays.asList(acTypeRepField, saRF, contractMinsRF, revenueRF, reportDateRF, reportMoneyRF),
-                new ArrayList<ReportField>()
-        );
+                new ArrayList<ReportField>(),
+                "Title", "Title name");
         new ExcelReporter().run(repInfo, data);
     }
 
     public void groupReport(){
         ReportInfo repInfo = new ReportInfo(dataFields,
                 Arrays.asList(acTypeRepField, saRF, contractMinsRF, revenueRF, reportDateRF, reportMoneyRF),
-                Arrays.asList(acTypeRepField, saRF)
-        );
+                Arrays.asList(acTypeRepField, saRF),
+                "Title", "Title name");
         new ExcelReporter().run(repInfo, data);
     }
 
