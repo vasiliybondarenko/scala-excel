@@ -1,7 +1,9 @@
 package poi.excel.report;
 
 import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.xssf.usermodel.XSSFColor;
+
+import java.awt.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -15,11 +17,20 @@ public interface ReportStyle {
 
     final short BOLD_WEIGHT_NORMAL = Font.BOLDWEIGHT_NORMAL;
 
-    final short TITLE_FONT_COLOR = IndexedColors.GREY_40_PERCENT.getIndex();
+    final XSSFColor TITLE_FONT_COLOR = new XSSFColor(Color.lightGray);//IndexedColors.GREY_40_PERCENT.getIndex();
 
     final short TITLE_FONT_SIZE = 20;
 
-    final short HEADER_FONT_COLOR = IndexedColors.WHITE.getIndex();
+    final XSSFColor HEADER_FONT_COLOR = new XSSFColor(Color.white);
 
-    final  short HEADER_BACKGROUND_COLOR = IndexedColors.RED.getIndex();
+    final  XSSFColor HEADER_BACKGROUND_COLOR = new XSSFColor(Color.red);
+
+    final XSSFColor FOOTER_FONT_COLOR = new XSSFColor(Color.red);
+
+    final short FOOTER_FONT_SIZE = 10;
+
+    final short FOOTER_BOLD_WEIGHT = Font.BOLDWEIGHT_BOLD;
+    
+    final XSSFColor FOOTER_BG_COLOR = new XSSFColor(new Color(255, 255, 255));
+
 }

@@ -31,7 +31,7 @@ public class SimpleReporter implements Reporter, ReportStyle{
     private final String logoImagePath = "/Users/shredinger/Documents/TI/scala-excel/src/main/resources/logo.png";
 
     @Override
-    public void run(ReportInfo reportInfo, List<List<String>> reportData) {
+    public void run(ReportInfo reportInfo, List<List<String>> reportData, List<FooterField> footerFields) {
         final int firstColumnIndex = 0;
         final int firstRowIndex = 4;
 
@@ -106,6 +106,11 @@ public class SimpleReporter implements Reporter, ReportStyle{
                 sheet.addMergedRegion(new CellRangeAddress(firstRow, lastRow, colIndex, colIndex));
             }
         }
+        
+        //footer
+        int firstFooterRow = firstRowIndex + reportData.size() + 2;
+        createFooter(wb, sheet, footerFields, firstFooterRow);
+        
 
         sheet.setDefaultColumnWidth(columnWidth);
 
@@ -118,6 +123,43 @@ public class SimpleReporter implements Reporter, ReportStyle{
             throw new RuntimeException(e);
         }
 
+    }
+    
+    private void createFooter(XSSFWorkbook wb, XSSFSheet sheet, List<FooterField> footerFields, int firstRow){
+        if(footerFields == null){
+            return;
+        }
+        int row = firstRow;
+        int keyColumnIndex = 0;
+        int valueColumnIndex = 1;
+        for(FooterField footerField: footerFields){
+            XSSFRow xssfRow = sheet.createRow(row);
+            XSSFCell keyCell = xssfRow.createCell(keyColumnIndex);            
+            XSSFCell valueCell = xssfRow.createCell(valueColumnIndex);            
+            keyCell.setCellValue(footerField.getLabel());
+            valueCell.setCellValue(footerField.getValue());
+
+            CellDataConverter cellDataConverter = CellDataConverterFactory.create(footerField.getDataType());
+            cellDataConverter.assignValue(footerField.getValue(), valueCell);
+
+            XSSFCellStyle style = createFooterStyle(wb);
+            
+            setFooterValueCellDataFormat(wb, style, cellDataConverter);
+            keyCell.setCellStyle(style);
+            valueCell.setCellStyle(style);
+            
+            row ++;            
+        }        
+    }
+
+    private XSSFCellStyle createFooterStyle(XSSFWorkbook wb) {
+        return getStyle(wb, new CellFontInfo(FOOTER_FONT_COLOR, FOOTER_FONT_SIZE, FOOTER_BG_COLOR, FOOTER_BOLD_WEIGHT));
+    }
+
+    private void setFooterValueCellDataFormat(XSSFWorkbook wb, XSSFCellStyle style, CellDataConverter cellDataConverter) {
+        String formatString = cellDataConverter.getDataFormat();        
+        XSSFDataFormat format = wb.createDataFormat();
+        style.setDataFormat(format.getFormat(formatString));        
     }
 
     private XSSFCellStyle getStyle(XSSFWorkbook wb, CellFontInfo cellStyleInfo){
@@ -144,6 +186,8 @@ public class SimpleReporter implements Reporter, ReportStyle{
         style.setFont(font);
         return style;
     }
+    
+    
 
     private XSSFCellStyle getTitleRowStyle(XSSFWorkbook wb){
         return getStyle(wb, new CellFontInfo(TITLE_FONT_COLOR, TITLE_FONT_SIZE, null, BOLD_WEIGHT));

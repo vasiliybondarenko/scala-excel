@@ -1,5 +1,6 @@
 package poi.excel.report.examples;
 
+import poi.excel.report.FooterField;
 import poi.excel.report.api.*;
 
 import java.util.ArrayList;
@@ -42,13 +43,18 @@ public class ExcelReporterSamples {
         add(Arrays.asList("AT2", "SA1", "2400", "1300", "2300000", "2015/01/28", "123000"));
         add(Arrays.asList("AT3", "SA2", "3200", "1500", "2100000", "2015/01/21", "123000"));
     }};
+    
+    List<FooterField> footerFields = Arrays.asList(new FooterField[]{
+       new FooterField("Total", "123", DataType.Number),
+       new FooterField("Summary", "xxx", DataType.String)
+    });
 
     public void simpleReport(){
         ReportInfo repInfo = new ReportInfo(dataFields,
                 Arrays.asList(acTypeRepField, saRF, contractMinsRF, revenueRF, reportDateRF, reportMoneyRF),
                 new ArrayList<ReportField>(),
                 "Title", "Title name");
-        new ExcelReporter().run(repInfo, data);
+        new ExcelReporter().run(repInfo, data, null);
     }
 
     public void groupReport(){
@@ -56,7 +62,7 @@ public class ExcelReporterSamples {
                 Arrays.asList(acTypeRepField, saRF, contractMinsRF, revenueRF, reportDateRF, reportMoneyRF),
                 Arrays.asList(acTypeRepField, saRF),
                 "Title", "Title name");
-        new ExcelReporter().run(repInfo, data);
+        new ExcelReporter().run(repInfo, data, footerFields);
     }
 
     public static void main(String[] args) {

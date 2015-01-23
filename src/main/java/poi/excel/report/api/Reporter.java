@@ -1,5 +1,7 @@
 package poi.excel.report.api;
 
+import poi.excel.report.FooterField;
+
 import java.util.List;
 
 /**
@@ -10,5 +12,5 @@ import java.util.List;
  * Project: scala-excel
  */
 public interface Reporter {
-    void run(ReportInfo reportInfo , List<List<String>> reportData);
+    void run(ReportInfo reportInfo , List<List<String>> reportData, List<FooterField> footerFields);
 }

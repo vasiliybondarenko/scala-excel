@@ -1,5 +1,7 @@
 package poi.excel.report;
 
+import org.apache.poi.xssf.usermodel.XSSFColor;
+
 /**
  * Created with IntelliJ IDEA.
  * Author: shredinger
@@ -9,12 +11,12 @@ package poi.excel.report;
  */
 public class CellFontInfo {
 
-    public final Short fontColor;
+    public final XSSFColor fontColor;
     public final  Short fontSize;
-    public final  Short backgroundColor;
+    public final  XSSFColor backgroundColor;
     public final  Short boldWeight;
 
-    public CellFontInfo(Short fontColor, Short fontSize, Short backgroundColor, Short boldWeight) {
+    public CellFontInfo(XSSFColor fontColor, Short fontSize, XSSFColor backgroundColor, Short boldWeight) {
         this.fontColor = fontColor;
         this.fontSize = fontSize;
         this.backgroundColor = backgroundColor;
