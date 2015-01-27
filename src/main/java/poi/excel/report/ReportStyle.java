@@ -21,7 +21,7 @@ public interface ReportStyle {
 
     final short TITLE_FONT_SIZE = 20;
 
-    final XSSFColor HEADER_FONT_COLOR = new XSSFColor(Color.white);
+    final XSSFColor HEADER_FONT_COLOR = new XSSFColor(Color.lightGray);
 
     final  XSSFColor HEADER_BACKGROUND_COLOR = new XSSFColor(Color.red);
 
