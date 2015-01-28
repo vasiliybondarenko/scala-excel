@@ -1,6 +1,8 @@
 package poi.excel.report.api;
 
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
+import poi.excel.report.ReportStyle;
 
 /**
  * Created with IntelliJ IDEA.
@@ -15,7 +17,9 @@ public class ReportField {
     private final String title;
     private String format;
     private boolean autofit;
-    private HorizontalAlignment alignment = HorizontalAlignment.LEFT;
+    private HorizontalAlignment horizontalAlignment = HorizontalAlignment.LEFT;
+    private VerticalAlignment verticalAlignment = VerticalAlignment.BOTTOM;
+    private int columnWidth = ReportStyle.DEFAULT_COLUMN_WIDTH;
 
     public ReportField(String field, String title, String format) {
         this(field, title);
@@ -43,15 +47,31 @@ public class ReportField {
         return autofit;
     }
 
-    public HorizontalAlignment getAlignment() {
-        return alignment;
+    public HorizontalAlignment getHorizontalAlignment() {
+        return horizontalAlignment;
     }
 
     public void setAutofit(boolean autofit) {
         this.autofit = autofit;
     }
 
-    public void setAlignment(HorizontalAlignment alignment) {
-        this.alignment = alignment;
+    public void setHorizontalAlignment(HorizontalAlignment horizontalAlignment) {
+        this.horizontalAlignment = horizontalAlignment;
+    }
+
+    public VerticalAlignment getVerticalAlignment() {
+        return verticalAlignment;
+    }
+
+    public void setVerticalAlignment(VerticalAlignment verticalAlignment) {
+        this.verticalAlignment = verticalAlignment;
+    }
+
+    public int getColumnWidth() {
+        return columnWidth;
+    }
+
+    public void setColumnWidth(int columnWidth) {
+        this.columnWidth = columnWidth;
     }
 }

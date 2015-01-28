@@ -33,4 +33,6 @@ public interface ReportStyle {
     
     final XSSFColor FOOTER_BG_COLOR = new XSSFColor(new Color(255, 255, 255));
 
+    final int DEFAULT_COLUMN_WIDTH = 20 * 256;
+
 }

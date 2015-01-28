@@ -1,6 +1,7 @@
 package poi.excel.report.examples;
 
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
 import poi.excel.report.FooterField;
 import poi.excel.report.api.*;
 
@@ -24,8 +25,14 @@ public class ExcelReporterSamples {
     private DataField reportDate = new DataField("reportDate", DataType.Date);
     private DataField reportMoney = new DataField("reportMoney", DataType.Money);
 
-    private ReportField acTypeRepField = new ReportField("aircraftType", "AC Type $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"){{setAutofit(true);}};
-    private ReportField saRF = new ReportField("serviceArea", "Service Area"){{setAlignment(HorizontalAlignment.RIGHT);}};
+    private ReportField acTypeRepField = new ReportField("aircraftType", "AC Type $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"){{
+        setAutofit(true);
+        setVerticalAlignment(VerticalAlignment.CENTER);        
+    }};
+    private ReportField saRF = new ReportField("serviceArea", "Service Area"){{
+        setHorizontalAlignment(HorizontalAlignment.RIGHT);
+        setColumnWidth(30 * 256);
+    }};
     private ReportField contractMinsRF = new ReportField("minutesContracted", "Contract Minutes");
     private ReportField usedMinsRF = new ReportField("minutesUsed", "Used Minutes");
     private ReportField revenueRF = new ReportField("revenue", "Revenue", "0.00");

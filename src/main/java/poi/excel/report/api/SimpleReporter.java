@@ -23,9 +23,6 @@ import java.util.*;
  */
 public class SimpleReporter implements Reporter, ReportStyle{
 
-
-    private final int columnWidth = 20;
-
     private final String destinationPath = "/Users/shredinger/Downloads/java_port_test.xlsx";
 
     //TODO: replace with relative path
@@ -54,7 +51,7 @@ public class SimpleReporter implements Reporter, ReportStyle{
         titleCell.setCellStyle(getTitleRowStyle(wb));
         try {
             //TODO: place image in proper place
-            ImageHelper.addLogoImageToWorkBook(wb, sheet, logoImagePath, titleStartColumnIndex + 1, titleStartRowIndex);
+            ImageHelper.addLogoImageToWorkBook(wb, sheet, logoImagePath, titleStartColumnIndex - 1, titleStartRowIndex);
         } catch (Exception e) {
             //TODO: handle exception
             e.printStackTrace();
@@ -91,7 +88,8 @@ public class SimpleReporter implements Reporter, ReportStyle{
                 XSSFDataFormat format = wb.createDataFormat();
                 String formatString = columnFormatString != null ? columnFormatString : cellDataConverter.getDataFormat();
                 style.setDataFormat(format.getFormat(formatString));
-                style.setAlignment(reportFields.get(col).getAlignment());
+                style.setAlignment(reportFields.get(col).getHorizontalAlignment());
+                style.setVerticalAlignment(reportFields.get(col).getVerticalAlignment());
                 cell.setCellStyle(style);
                 cellDataConverter.assignValue(cells.get(col), cell);
             }
@@ -113,16 +111,16 @@ public class SimpleReporter implements Reporter, ReportStyle{
         
         //footer
         int firstFooterRow = firstRowIndex + reportData.size() + 2;
-        createFooter(wb, sheet, footerFields, firstFooterRow);        
+        createFooter(wb, sheet, footerFields, firstFooterRow);
 
-        sheet.setDefaultColumnWidth(columnWidth);
-
-        //auto fit columns
+        //auto fit/size columns
         columnNumber = firstColumnIndex;
         for(ReportField item: filteredReportFields) {            
             if(item.isAutofit()){
                 HSSFFormulaEvaluator.evaluateAllFormulaCells(wb);
                 sheet.autoSizeColumn(columnNumber);
+            } else {
+                sheet.setColumnWidth(columnNumber, item.getColumnWidth());
             }
             columnNumber ++;
         }
