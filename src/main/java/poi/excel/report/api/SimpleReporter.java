@@ -1,5 +1,6 @@
 package poi.excel.report.api;
 
+import org.apache.poi.hssf.usermodel.HSSFFormulaEvaluator;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
@@ -40,6 +41,7 @@ public class SimpleReporter implements Reporter, ReportStyle{
         XSSFRow headerRow = sheet.createRow(firstRowIndex - 1);
         List<DataField> dataFields = getFilteredDataFields(reportInfo);
         List<ReportField> reportFields = getFilteredReportFields(reportInfo);
+        List<XSSFCellStyle> columnStyles = createColumnStyles(wb, dataFields);
 
         //title/logo
         int titleStartColumnIndex = 2;
@@ -63,6 +65,7 @@ public class SimpleReporter implements Reporter, ReportStyle{
         int columnNumber = firstColumnIndex;
         List<ReportField> filteredReportFields = getFilteredReportFields(reportInfo);
         XSSFCellStyle headerRowStyle = getHeaderRowStyle(wb);
+        headerRowStyle.setAlignment(CellStyle.ALIGN_CENTER);
         for(ReportField item: filteredReportFields) {
             XSSFCell cell = headerRow.createCell(columnNumber);
             cell.setCellValue(item.getTitle());
@@ -84,10 +87,11 @@ public class SimpleReporter implements Reporter, ReportStyle{
                 DataType dataType = dataFields.get(col).getDataType();
                 CellDataConverter cellDataConverter = CellDataConverterFactory.create(dataType);
                 String columnFormatString = reportFields.get(col).getFormat();
-                XSSFCellStyle style = wb.createCellStyle();
+                XSSFCellStyle style = columnStyles.get(col);
                 XSSFDataFormat format = wb.createDataFormat();
                 String formatString = columnFormatString != null ? columnFormatString : cellDataConverter.getDataFormat();
                 style.setDataFormat(format.getFormat(formatString));
+                style.setAlignment(reportFields.get(col).getAlignment());
                 cell.setCellStyle(style);
                 cellDataConverter.assignValue(cells.get(col), cell);
             }
@@ -109,10 +113,19 @@ public class SimpleReporter implements Reporter, ReportStyle{
         
         //footer
         int firstFooterRow = firstRowIndex + reportData.size() + 2;
-        createFooter(wb, sheet, footerFields, firstFooterRow);
-        
+        createFooter(wb, sheet, footerFields, firstFooterRow);        
 
         sheet.setDefaultColumnWidth(columnWidth);
+
+        //auto fit columns
+        columnNumber = firstColumnIndex;
+        for(ReportField item: filteredReportFields) {            
+            if(item.isAutofit()){
+                HSSFFormulaEvaluator.evaluateAllFormulaCells(wb);
+                sheet.autoSizeColumn(columnNumber);
+            }
+            columnNumber ++;
+        }
 
         FileOutputStream resultFile = null;
         try {
@@ -152,6 +165,14 @@ public class SimpleReporter implements Reporter, ReportStyle{
         }        
     }
 
+    private List<XSSFCellStyle> createColumnStyles(XSSFWorkbook wb, List<DataField> dataFields){
+        ArrayList<XSSFCellStyle> styles = new ArrayList<>();
+        for(DataField dataField: dataFields){
+            styles.add(wb.createCellStyle());            
+        }
+        return styles;        
+    }
+    
     private XSSFCellStyle createFooterStyle(XSSFWorkbook wb) {
         return getStyle(wb, new CellFontInfo(FOOTER_FONT_COLOR, FOOTER_FONT_SIZE, FOOTER_BG_COLOR, FOOTER_BOLD_WEIGHT));
     }
