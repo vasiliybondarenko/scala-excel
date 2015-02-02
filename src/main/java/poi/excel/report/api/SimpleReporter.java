@@ -69,7 +69,17 @@ public class SimpleReporter implements Reporter, ReportStyle{
             columnNumber = columnNumber + 1;
             cell.setCellStyle(headerRowStyle);
         }
-
+        
+        //auto filter
+        AutoFilter autoFilter = reportInfo.getAutoFilter();
+        sheet.setAutoFilter(
+                new CellRangeAddress(
+                        firstRowIndex - 1,
+                        reportData.size() + firstRowIndex - 1,
+                        autoFilter == null ? firstColumnIndex : autoFilter.getFirstColumn(),
+                        autoFilter == null ? firstColumnIndex + filteredReportFields.size() - 1 : autoFilter.getLastColumn())
+        );
+               
         //body
         List<List<String>> preparedData = prepareData(reportInfo, reportData);
         for(int r = 0; r < preparedData.size(); r ++){

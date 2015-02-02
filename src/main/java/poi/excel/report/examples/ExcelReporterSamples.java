@@ -2,6 +2,7 @@ package poi.excel.report.examples;
 
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
+import poi.excel.report.AutoFilter;
 import poi.excel.report.FooterField;
 import poi.excel.report.api.*;
 
@@ -70,6 +71,7 @@ public class ExcelReporterSamples {
                 Arrays.asList(acTypeRepField, saRF, contractMinsRF, revenueRF, reportDateRF, reportMoneyRF),
                 Arrays.asList(acTypeRepField, saRF),
                 "Title", "Title name");
+        repInfo.setAutoFilter(new AutoFilter(2, 3));
         new ExcelReporter().run(repInfo, data, footerFields);
     }
 

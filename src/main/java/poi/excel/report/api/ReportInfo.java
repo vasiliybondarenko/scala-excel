@@ -1,5 +1,7 @@
 package poi.excel.report.api;
 
+import poi.excel.report.AutoFilter;
+
 import java.util.List;
 
 /**
@@ -14,7 +16,9 @@ public class ReportInfo {
     private final List<ReportField> reportFields;
     private final List<ReportField> rowGroup;
     private final String titleName;
-    private final String spreadshitName;
+    private final String spreadshitName;   
+
+    private AutoFilter autoFilter;
 
     public List<ReportField> getRowGroup() {
         return rowGroup;
@@ -36,6 +40,14 @@ public class ReportInfo {
         return spreadshitName;
     }
 
+    public void setAutoFilter(AutoFilter autoFilter) {
+        this.autoFilter = autoFilter;
+    }
+
+    public AutoFilter getAutoFilter() {
+        return autoFilter;
+    }
+    
     public ReportInfo(List<DataField> dataFields, List<ReportField> reportFields, List<ReportField> rowGroup, String titleName, String spreadshitName) {
         this.dataFields = dataFields;
         this.reportFields = reportFields;
