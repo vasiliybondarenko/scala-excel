@@ -26,12 +26,12 @@ public class SimpleReporter implements Reporter, ReportStyle{
     private final String destinationPath = "/Users/shredinger/Downloads/java_port_test.xlsx";
 
     //TODO: replace with relative path
-    private final String logoImagePath = "/Users/shredinger/Documents/TI/scala-excel/src/main/resources/logo.png";
+    private final String logoImagePath = "src/main/resources/logo.jpg";
 
     @Override
     public void run(ReportInfo reportInfo, List<List<String>> reportData, List<FooterField> footerFields) {
         final int firstColumnIndex = 0;
-        final int firstRowIndex = 4;
+        final int firstRowIndex = 5;
 
         XSSFWorkbook wb = new XSSFWorkbook();
         XSSFSheet sheet = wb.createSheet(reportInfo.getSpreadshitName());
@@ -41,17 +41,30 @@ public class SimpleReporter implements Reporter, ReportStyle{
         List<XSSFCellStyle> columnStyles = createColumnStyles(wb, dataFields);
 
         //title/logo
-        int titleStartColumnIndex = 2;
-        int titleStartRowIndex = 1;
-        short titleRowHeight = (short)500;
+        final int logoColumn = 0;
+        final int titleStartColumnIndex = 2;
+        final int titleStartRowIndex = 2;
+        final int logoRowIndex = titleStartRowIndex - 1;
+        final short logoRowHeight = (short)500;
+        final short titleRowHeight = (short)600;
+        XSSFRow logoRow = sheet.createRow(logoRowIndex);
+        logoRow.setHeight(logoRowHeight);
+        logoRow.createCell(logoColumn);
+        
         XSSFRow titleRow = sheet.createRow(titleStartRowIndex);
         titleRow.setHeight(titleRowHeight);
         XSSFCell titleCell = titleRow.createCell(titleStartColumnIndex);
         titleCell.setCellValue(reportInfo.getTitleName());
         titleCell.setCellStyle(getTitleRowStyle(wb));
         try {
-            //TODO: place image in proper place
-            ImageHelper.addLogoImageToWorkBook(wb, sheet, logoImagePath, titleStartColumnIndex - 1, titleStartRowIndex);
+            //TODO: place image in proper place            
+            XSSFCell logoCell = sheet.getRow(logoRowIndex).createCell(logoColumn);
+            XSSFCellStyle logoCellStyle = wb.createCellStyle();
+            logoCell.setCellStyle(logoCellStyle);            
+
+            ImageHelper.addLogoImageToWorkBook(wb, sheet, logoImagePath, logoColumn, logoRowIndex);
+
+            sheet.autoSizeColumn(logoColumn);
         } catch (Exception e) {
             //TODO: handle exception
             e.printStackTrace();

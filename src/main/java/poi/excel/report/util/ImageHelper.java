@@ -30,7 +30,7 @@ public class ImageHelper {
         anchor.setRow1(row);
         Picture pict = drawing.createPicture(anchor, pictureIdx);
 
-        pict.resize();
+        pict.resize(0.25);
 
     }
 
